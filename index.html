@@ -10,9 +10,12 @@
       background-color: black;
       font-family: 'Segoe UI', sans-serif;
     }
-    canvas { display: block; }
 
-    /* TE AMO grande al hacer clic */
+    canvas {
+      display: block;
+    }
+
+    /* Efecto al hacer clic */
     .floating-text {
       position: absolute;
       color: #00ffff;
@@ -26,9 +29,6 @@
         0 0 40px #00ffff,
         0 0 80px #0066ff;
       user-select: none;
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
     }
     @keyframes floatUp {
       to { opacity: 0; transform: translate(-50%, -280px) scale(2.5); }
@@ -41,26 +41,26 @@
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+
+    // Tamaño de pantalla
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
 
     const phrase = "TE AMO ";
     const fontSize = 20;
-    const columnSpacing = fontSize * 2.3;           // muchas más columnas = mucha más lluvia
+    const columnSpacing = fontSize * 2.3;           // Mucho más denso
     let columns = Math.floor(width / columnSpacing) + 10;
     let drops = [];
 
-    // empezar con la pantalla ya llena de amor
+    // Empezar con la pantalla ya llena
     for (let i = 0; i < columns; i++) {
       drops[i] = Math.random() * -300;
     }
 
     function draw() {
-      // fondo negro puro cada frame
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, width, height);
 
-      // gradiente azul neon
       const gradient = ctx.createLinearGradient(0, 0, width, height);
       gradient.addColorStop(0,   "#00ffff");
       gradient.addColorStop(0.5, "#0088ff");
@@ -72,13 +72,13 @@
         const x = i * columnSpacing + 15;
         const y = drops[i] * fontSize * 1.5;
 
-        // cabeza brillante
+        // Cabeza brillante
         ctx.fillStyle = "#ffffff";
         ctx.shadowBlur = 25;
         ctx.shadowColor = "#00ffff";
         ctx.fillText(phrase, x, y);
 
-        // rastro largo y bonito (5 niveles)
+        // Rastro largo (5 niveles)
         ctx.fillStyle = gradient;
         ctx.shadowBlur = 15;
         ctx.shadowColor = "#00ffff";
@@ -90,7 +90,7 @@
         }
         ctx.globalAlpha = 1;
 
-        drops[i] += 1.05;   // velocidad perfecta
+        drops[i] += 1.05;
 
         if (y > height + 100) {
           drops[i] = -Math.random() * 100;
@@ -101,7 +101,7 @@
 
     requestAnimationFrame(draw);
 
-    // ajustar al cambiar tamaño de ventana
+    // Redimensionar
     window.addEventListener('resize', () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
@@ -110,7 +110,7 @@
       for (let i = 0; i < columns; i++) drops[i] = Math.random() * -300;
     });
 
-    // clic = TE AMO gigante que sube
+    // Clic = TE AMO gigante
     document.addEventListener('click', (e) => {
       const text = document.createElement('div');
       text.className = 'floating-text';
