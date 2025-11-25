@@ -2,107 +2,101 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Lluvia de TE AMO</title>
+  <title>Lluvia de Te Amo</title>
   <style>
     body {
       margin: 0;
+      padding: 0;
       overflow: hidden;
-      background-color: black;
-      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #ffcccc, #ffe6e6);
+      font-family: 'Arial', sans-serif;
+      position: relative;
+      cursor: pointer;
     }
 
-    canvas {
-      display: block;
-    }
-
-    .floating-text {
+    .te-amo {
       position: absolute;
-      color: #ff3366;
-      font-size: 22px;
+      color: red;
+      font-size: 20px;
       font-weight: bold;
+      animation: caer 5s linear forwards;
+      user-select: none;
       pointer-events: none;
-      animation: floatUp 1.5s ease-out forwards;
-      text-shadow: 0 0 5px white;
     }
 
-    @keyframes floatUp {
+    @keyframes caer {
       0% {
+        top: -10%;
         opacity: 1;
         transform: translateY(0);
       }
       100% {
+        top: 110%;
         opacity: 0;
-        transform: translateY(-80px) scale(1.5);
+        transform: translateY(100vh);
       }
+    }
+
+    .estatico {
+      animation: estallar 1s ease-out forwards;
+    }
+
+    @keyframes estallar {
+      0% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+      100% {
+        opacity: 1;
+        transform: scale(1.5);
+      }
+    }
+
+    h1 {
+      position: absolute;
+      top: 40px;
+      width: 100%;
+      text-align: center;
+      color: #b30000;
+      font-size: 2.5em;
+      text-shadow: 1px 1px 5px white;
+      z-index: 1;
     }
   </style>
 </head>
 <body>
-  <canvas id="canvas"></canvas>
+  <h1>Lluvia de Te Amo ❤️</h1>
 
   <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
-
-    let width = window.innerWidth;
-    let height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
-
-    const phrase = "TE AMO ";
-    const fontSize = 18;
-    let columns = Math.floor(width / fontSize);
-    let drops = Array(columns).fill(1);
-
-    function draw() {
-      // Fondo semitransparente para efecto de estela
-      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-      ctx.fillRect(0, 0, width, height);
-
-      const gradient = ctx.createLinearGradient(0, 0, width, height);
-      gradient.addColorStop(0, "#ff4d6d");
-      gradient.addColorStop(0.5, "#ff99aa");
-      gradient.addColorStop(1, "#ff1a66");
-
-      ctx.fillStyle = gradient;
-      ctx.font = fontSize + "px 'Segoe UI', Arial";
-
-      for (let i = 0; i < drops.length; i++) {
-        ctx.fillText(phrase, i * fontSize, drops[i] * fontSize);
-
-        if (drops[i] * fontSize > height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-
-        drops[i]++;
-      }
-
-      requestAnimationFrame(draw);
-    }
-
-    draw();
-
-    // Redimensionar y regenerar columnas
-    window.addEventListener('resize', () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-      columns = Math.floor(width / fontSize);
-      drops = Array(columns).fill(1);
-    });
-
-    // Al hacer clic: mostrar "TE AMO" flotante
-    document.addEventListener('click', (e) => {
-      const text = document.createElement('div');
-      text.className = 'floating-text';
-      text.innerText = 'TE AMO';
-      text.style.left = e.clientX + 'px';
-      text.style.top = e.clientY + 'px';
-      document.body.appendChild(text);
+    // Lluvia automática de "Te Amo"
+    function crearLluvia() {
+      const teAmo = document.createElement("div");
+      teAmo.classList.add("te-amo");
+      teAmo.innerText = "Te amo";
+      teAmo.style.left = Math.random() * 100 + "vw";
+      teAmo.style.fontSize = (16 + Math.random() * 10) + "px";
+      document.body.appendChild(teAmo);
 
       setTimeout(() => {
-        text.remove();
+        teAmo.remove();
+      }, 5000);
+    }
+
+    setInterval(crearLluvia, 300);
+
+    // Al hacer clic, se estampa un "Te amo"
+    document.addEventListener("click", (e) => {
+      const estatico = document.createElement("div");
+      estatico.classList.add("te-amo", "estatico");
+      estatico.innerText = "Te amo";
+      estatico.style.left = e.clientX + "px";
+      estatico.style.top = e.clientY + "px";
+      estatico.style.position = "absolute";
+      estatico.style.fontSize = "22px";
+      document.body.appendChild(estatico);
+
+      setTimeout(() => {
+        estatico.remove();
       }, 1500);
     });
   </script>
