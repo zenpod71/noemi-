@@ -2,7 +2,6 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chuva de TE AMO ♡</title>
   <style>
     body {
@@ -12,27 +11,6 @@
       font-family: 'Segoe UI', Tahoma, sans-serif;
     }
     canvas { display: block; }
-
-    .floating-text {
-      position: absolute;
-      color: #ff6bc8;
-      font-size: 40px;
-      font-weight: bold;
-      pointer-events: none;
-      text-shadow: 0 0 15px #ff6bc8, 0 0 30px #ff1493;
-      animation: floatUp 4s ease-out forwards; /* muito mais lento */
-      user-select: none;
-    }
-    @keyframes floatUp {
-      0% {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-150px) scale(1.8);
-      }
-    }
   </style>
 </head>
 <body>
@@ -41,81 +19,71 @@
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-    let w = canvas.width = window.innerWidth;
-    let h = canvas.height = window.innerHeight;
+
+    // Ajusta o tamanho do canvas
+    function resize() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
 
     const phrase = "TE AMO ";
-    const fontSize = 28;               // maior e mais legível
-    const columns = Math.floor(w / (fontSize * 1.8)); // espaçamento maior
-    let drops = new Array(columns).fill(1);
+    const fontSize = 26;                           // maior e mais legível
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill(1);
 
-    // === VELOCIDADE MUITO LENTA ===
-    const targetFPS = 4;               // 4 quadros por segundo → super tranquilo
-    const frameInterval = 1000 / targetFPS;
-    let lastFrameTime = 0;
+    // Velocidade super lenta e suave
+    let lastTime = 0;
+    const speed = 180; // milissegundos entre cada passo (quanto maior = mais lento)
 
     function draw(timestamp) {
-      requestAnimationFrame(draw);
-
-      if (!lastFrameTime) lastFrameTime = timestamp;
-      const elapsed = timestamp - lastFrameTime;
-
-      if (elapsed > frameInterval) {
-        lastFrameTime = timestamp - (elapsed % frameInterval);
-
-        // fundo com rastro suave
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-        ctx.fillRect(0, 0, w, h);
-
-        // cor bonita com gradiente
-        ctx.font = `bold ${fontSize}px 'Segoe UI', Arial`;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = '#ff6bc8';
-
-        for (let i = 0; i < drops.length; i++) {
-          const x = i * fontSize * 1.8;
-          const y = drops[i] * fontSize;
-
-          // cor principal (rosa neon)
-          ctx.fillStyle = '#ff6bc8';
-          ctx.fillText(phrase, x, y);
-
-          // brilho na cabeça da coluna
-          if (drops[i] > 0) {
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText(phrase, x, y - fontSize);
-          }
-
-          drops[i] += 0.5; // velocidade da queda (quanto menor, mais lento)
-
-          // reinicia a coluna quando sai da tela
-          if (y > h && Math.random() > 0.98) {
-            drops[i] = 0;
-          }
-        }
+      if (!lastTime) lastTime = timestamp;
+      if (timestamp - lastTime < speed) {
+        requestAnimationFrame(draw);
+        return;
       }
+      lastTime = timestamp;
+
+      // Fundo com rastro bem suave (fica clean)
+      ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Cor azul neon linda
+      ctx.fillStyle = "#00ddff";
+      ctx.font = `bold ${fontSize}px 'Segoe UI', Arial`;
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = "#00ddff";
+
+      for (let i = 0; i < drops.length; i++) {
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+
+        // Texto principal
+        ctx.fillText(phrase, x, y);
+
+        // Brilho branco na "cabeça" da coluna (efeito Matrix bonito)
+        if (drops[i] > 1) {
+          ctx.fillStyle = "#ffffff";
+          ctx.fillText(phrase, x, y - fontSize);
+        }
+
+        // Reseta a coluna quando sai da tela
+        if (y > canvas.height && Math.random() > 0.98) {
+          drops[i] = 0;
+        }
+
+        drops[i] += 0.6; // velocidade da queda (fracionário = mais suave)
+      }
+
+      // Cor volta pro azul padrão pro próximo frame
+      ctx.fillStyle = "#00ddff";
+      ctx.shadowColor = "#00ddff";
+
+      requestAnimationFrame(draw);
     }
 
     requestAnimationFrame(draw);
-
-    // redimensionar
-    window.addEventListener('resize', () => {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-      drops = new Array(Math.floor(w / (fontSize * 1.8))).fill(1);
-    });
-
-    // clique → TE AMO grande e lento
-    document.addEventListener('click', (e) => {
-      const text = document.createElement('div');
-      text.className = 'floating-text';
-      text.innerText = 'TE AMO ♡';
-      text.style.left = (e.clientX - 80) + 'px';  // centralizar um pouco
-      text.style.top = (e.clientY - 40) + 'px';
-      document.body.appendChild(text);
-
-      setTimeout(() => text.remove(), 4000); // fica 4 segundos na tela
-    });
   </script>
 </body>
 </html>
