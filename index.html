@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Chuva de TE AMO ♡</title>
+  <title>Chuva de TE AMO</title>
   <style>
     body {
       margin: 0;
@@ -11,20 +11,25 @@
       font-family: 'Segoe UI', sans-serif;
     }
     canvas { display: block; }
-
+    
+    /* TE AMO flutuante ao clicar - agora em azul neon */
     .floating-text {
       position: absolute;
-      color: #00ddff;
-      font-size: 38px;
+      color: #00ffff;
+      font-size: 42px;
       font-weight: bold;
       pointer-events: none;
-      text-shadow: 0 0 20px #00ddff, 0 0 40px #0088ff;
       animation: floatUp 3s ease-out forwards;
+      text-shadow: 
+        0 0 10px #00ffff,
+        0 0 20px #00ffff,
+        0 0 40px #00ffff,
+        0 0 80px #0088ff;
       user-select: none;
     }
     @keyframes floatUp {
-      0%   { opacity: 1; transform: translateY(0) scale(1); }
-      100% { opacity: 0; transform: translateY(-200px) scale(1.6); }
+      0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -200px) scale(2); }
     }
   </style>
 </head>
@@ -34,18 +39,17 @@
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
 
-    let w = canvas.width = window.innerWidth;
-    let h = canvas.height = window.innerHeight;
-
-    const phrase = "TE AMO";                    // sem espaço no final
-    const fontSize = 28;                        // tamanho bom e legível
-    const spacingX = fontSize * 4.2;            // espaçamento horizontal grande
-    let columns = Math.floor(w / spacingX) + 2;
-    let drops = Array(columns).fill(-150);
+    const phrase = "TE AMO  ";
+    const fontSize = 18;
+    const columnSpacing = fontSize * 3.8;
+    let columns = Math.floor(width / columnSpacing) + 1;
+    let drops = Array(columns).fill(-Math.random() * 100);
 
     let lastTime = 0;
-    const frameDelay = 150;                     // velocidade gostosa e legível
+    const frameDelay = 110;
 
     function draw(timestamp) {
       if (!lastTime) lastTime = timestamp;
@@ -55,69 +59,63 @@
       }
       lastTime = timestamp;
 
-      // fundo preto com fade suave
-      ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
-      ctx.fillRect(0, 0, w, h);
+      // Fade suave no fundo
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, width, height);
+
+      // Gradiente azul neon lindo
+      const gradient = ctx.createLinearGradient(0, 0, width, height);
+      gradient.addColorStop(0, "#00ffff");     // ciano neon
+      gradient.addColorStop(0.5, "#0088ff");   // azul elétrico
+      gradient.addColorStop(1, "#00b7eb");     // azul céu intenso
 
       ctx.font = `bold ${fontSize}px 'Segoe UI', Arial`;
 
       for (let i = 0; i < drops.length; i++) {
-        const x = i * spacingX + 30;
-        const y = drops[i] * fontSize * 1.3;   // espaçamento vertical também generoso
+        const x = i * columnSpacing + 20;
+        const y = drops[i] * fontSize * 1.6;
 
-        // Cabeça branca brilhante
+        // Cabeça branca brilhante (mantida para destaque)
         ctx.fillStyle = "#ffffff";
         ctx.shadowBlur = 25;
-        ctx.shadowColor = "#ffffff";
+        ctx.shadowColor = "#00ffff";
         ctx.fillText(phrase, x, y);
 
-        // Próxima letra azul forte
-        ctx.fillStyle = "#00ddff";
-        ctx.shadowBlur = 18;
-        ctx.shadowColor = "#00ddff";
-        ctx.fillText(phrase, x, y + fontSize * 1.3);
-
-        // Rastro azul claro (poucos e espaçados)
-        ctx.fillStyle = "#0088ff";
-        ctx.globalAlpha = 0.6;
-        for (let j = 2; j < 6; j++) {
-          const trailY = y + j * fontSize * 1.5;
-          if (trailY < h + 100) {
-            ctx.globalAlpha = 0.6 - j * 0.1;
-            ctx.fillText(phrase, x, trailY);
-          }
+        // Corpo em azul neon com gradiente
+        ctx.fillStyle = gradient;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = "#00ffff";
+        if (drops[i] > 0) {
+          ctx.fillText(phrase, x, y - fontSize * 1.6);
         }
-        ctx.globalAlpha = 1;
 
-        drops[i] += 0.55;
-
-        if (y > h + 100) {
-          drops[i] = -Math.random() * 180 - 50;
+        drops[i] += 0.7;
+        if (y > height + 100) {
+          drops[i] = -Math.random() * 120;
         }
       }
-
       requestAnimationFrame(draw);
     }
 
     requestAnimationFrame(draw);
 
-    // redimensionar
+    // Redimensionamento
     window.addEventListener('resize', () => {
-      w = canvas.width = window.innerWidth;
-      h = canvas.height = window.innerHeight;
-      columns = Math.floor(w / spacingX) + 2;
-      drops = Array(columns).fill(-150);
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      columns = Math.floor(width / columnSpacing) + 1;
+      drops = Array(columns).fill(-Math.random() * 100);
     });
 
-    // clique → TE AMO grande azul subindo lindo
+    // Clique = TE AMO grande em azul neon
     document.addEventListener('click', (e) => {
-      const el = document.createElement('div');
-      el.className = 'floating-text';
-      el.innerText = 'TE AMO';
-      el.style.left = (e.clientX - 90) + 'px';
-      el.style.top = (e.clientY - 40) + 'px';
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 3200);
+      const text = document.createElement('div');
+      text.className = 'floating-text';
+      text.innerText = 'TE AMO';
+      text.style.left = e.clientX + 'px';
+      text.style.top = e.clientY + 'px';
+      document.body.appendChild(text);
+      setTimeout(() => text.remove(), 3200);
     });
   </script>
 </body>
