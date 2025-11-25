@@ -17,7 +17,7 @@
 
     .floating-text {
       position: absolute;
-      /* Mantido Azul */
+      /* Cor Azul para o texto flutuante */
       color: #3399ff; 
       font-size: 22px;
       font-weight: bold;
@@ -55,36 +55,52 @@
     let columns = Math.floor(width / fontSize);
     let drops = Array(columns).fill(1);
 
-    function draw() {
-      // Fondo semitransparente para efecto de estela
-      ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-      ctx.fillRect(0, 0, width, height);
+    // Variáveis para controle de FPS (para lentidão)
+    let lastTime = 0;
+    // ALTERAÇÃO: Define o intervalo mínimo entre quadros para 100ms (10 FPS)
+    const fpsInterval = 1000 / 10; 
 
-      // Gradiente de cores azuis
-      const gradient = ctx.createLinearGradient(0, 0, width, height);
-      gradient.addColorStop(0, "#0077c2");   
-      gradient.addColorStop(0.5, "#4db6ff");  
-      gradient.addColorStop(1, "#005a9c");   
+    function draw(timestamp) {
+      // Inicia o próximo loop de animação
+      requestAnimationFrame(draw); 
 
-      ctx.fillStyle = gradient;
-      ctx.font = fontSize + "px 'Segoe UI', Arial";
+      // Lógica de Limite de FPS para lentidão
+      const elapsed = timestamp - lastTime;
 
-      for (let i = 0; i < drops.length; i++) {
-        ctx.fillText(phrase, i * fontSize, drops[i] * fontSize);
+      // Só executa o desenho se o tempo decorrido for maior que o intervalo mínimo
+      if (elapsed > fpsInterval) {
+        lastTime = timestamp - (elapsed % fpsInterval);
+        
+        // --- CÓDIGO DE DESENHO ---
+        
+        // Fondo semitransparente para efecto de estela
+        ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
+        ctx.fillRect(0, 0, width, height);
 
-        if (drops[i] * fontSize > height && Math.random() > 0.975) {
-          drops[i] = 0;
+        // Gradiente de cores azuis
+        const gradient = ctx.createLinearGradient(0, 0, width, height);
+        gradient.addColorStop(0, "#0077c2");   
+        gradient.addColorStop(0.5, "#4db6ff");  
+        gradient.addColorStop(1, "#005a9c");   
+
+        ctx.fillStyle = gradient;
+        ctx.font = fontSize + "px 'Segoe UI', Arial";
+
+        for (let i = 0; i < drops.length; i++) {
+          ctx.fillText(phrase, i * fontSize, drops[i] * fontSize);
+
+          if (drops[i] * fontSize > height && Math.random() > 0.975) {
+            drops[i] = 0;
+          }
+
+          // A queda é de 1 unidade, mas agora é executada a cada 100ms
+          drops[i]++; 
         }
-
-        // ALTERAÇÃO PARA DEIXAR MAIS LENTO
-        drops[i] += 0.5; 
-        // Se 0.5 for muito lento, tente 0.7. Se for muito rápido, tente 0.3.
       }
-
-      requestAnimationFrame(draw);
     }
 
-    draw();
+    // Passamos o timestamp inicial para a primeira chamada
+    requestAnimationFrame(draw); 
 
     // Redimensionar y regenerar columnas
     window.addEventListener('resize', () => {
