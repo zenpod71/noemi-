@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
-  <title>Chuva de TE AMO ♡</title>
+  <title>Chuva de TE AMO</title>
   <style>
     body {
       margin: 0;
@@ -41,7 +41,7 @@
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
 
-    const phrase = "TE AMO ";
+    const phrase = " ";
     const fontSize = 18;
     const columnSpacing = fontSize * 3.8;
     let columns = Math.floor(width / columnSpacing) + 1;
@@ -100,7 +100,7 @@
     document.addEventListener('click', (e) => {
       const text = document.createElement('div');
       text.className = 'floating-text';
-      text.innerText = 'TE AMO ♡';
+      text.innerText = 'TE AMO';
       text.style.left = e.clientX + 'px';
       text.style.top = e.clientY + 'px';
       document.body.appendChild(text);
