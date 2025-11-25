@@ -14,28 +14,6 @@
     canvas {
       display: block;
     }
-
-    .floating-text {
-      position: absolute;
-      /* Cor Azul para o texto flutuante */
-      color: #3399ff; 
-      font-size: 22px;
-      font-weight: bold;
-      pointer-events: none;
-      animation: floatUp 1.5s ease-out forwards;
-      text-shadow: 0 0 5px white;
-    }
-
-    @keyframes floatUp {
-      0% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      100% {
-        opacity: 0;
-        transform: translateY(-80px) scale(1.5);
-      }
-    }
   </style>
 </head>
 <body>
@@ -45,85 +23,42 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    let width = window.innerWidth;
-    let height = window.innerHeight;
-    canvas.width = width;
-    canvas.height = height;
+    // Tamaño de pantalla
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     const phrase = "TE AMO ";
-    const fontSize = 18;
-    let columns = Math.floor(width / fontSize);
-    let drops = Array(columns).fill(1);
+    const fontSize = 16;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill(1);
 
-    // Variáveis para controle de FPS (para lentidão)
-    let lastTime = 0;
-    // ALTERAÇÃO: Define o intervalo mínimo entre quadros para 100ms (10 FPS)
-    const fpsInterval = 1000 / 10; 
+    // Dibujar el texto
+    function draw() {
+      // Fondo semitransparente para el efecto de estela
+      ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    function draw(timestamp) {
-      // Inicia o próximo loop de animação
-      requestAnimationFrame(draw); 
+      ctx.fillStyle = "#ff69b4"; // Rosa fuerte (HotPink)
+      ctx.font = fontSize + "px Arial";
 
-      // Lógica de Limite de FPS para lentidão
-      const elapsed = timestamp - lastTime;
+      for (let i = 0; i < drops.length; i++) {
+        const text = phrase;
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-      // Só executa o desenho se o tempo decorrido for maior que o intervalo mínimo
-      if (elapsed > fpsInterval) {
-        lastTime = timestamp - (elapsed % fpsInterval);
-        
-        // --- CÓDIGO DE DESENHO ---
-        
-        // Fondo semitransparente para efecto de estela
-        ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
-        ctx.fillRect(0, 0, width, height);
-
-        // Gradiente de cores azuis
-        const gradient = ctx.createLinearGradient(0, 0, width, height);
-        gradient.addColorStop(0, "#0077c2");   
-        gradient.addColorStop(0.5, "#4db6ff");  
-        gradient.addColorStop(1, "#005a9c");   
-
-        ctx.fillStyle = gradient;
-        ctx.font = fontSize + "px 'Segoe UI', Arial";
-
-        for (let i = 0; i < drops.length; i++) {
-          ctx.fillText(phrase, i * fontSize, drops[i] * fontSize);
-
-          if (drops[i] * fontSize > height && Math.random() > 0.975) {
-            drops[i] = 0;
-          }
-
-          // A queda é de 1 unidade, mas agora é executada a cada 100ms
-          drops[i]++; 
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
         }
+
+        drops[i]++;
       }
     }
 
-    // Passamos o timestamp inicial para a primeira chamada
-    requestAnimationFrame(draw); 
+    setInterval(draw, 100);
 
-    // Redimensionar y regenerar columnas
+    // Redimensionar al cambiar el tamaño de la ventana
     window.addEventListener('resize', () => {
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = width;
-      canvas.height = height;
-      columns = Math.floor(width / fontSize);
-      drops = Array(columns).fill(1);
-    });
-
-    // Al hacer clic: mostrar "TE AMO" flotante
-    document.addEventListener('click', (e) => {
-      const text = document.createElement('div');
-      text.className = 'floating-text';
-      text.innerText = 'TE AMO';
-      text.style.left = e.clientX + 'px';
-      text.style.top = e.clientY + 'px';
-      document.body.appendChild(text);
-
-      setTimeout(() => {
-        text.remove();
-      }, 1500);
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     });
   </script>
 </body>
