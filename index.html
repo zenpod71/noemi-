@@ -4,8 +4,32 @@
   <meta charset="UTF-8">
   <title>Chuva de TE AMO ♡</title>
   <style>
-    body { margin: 0; overflow: hidden; background: #000; }
+    body {
+      margin: 0;
+      overflow: hidden;
+      background: #000;
+      font-family: 'Segoe UI', sans-serif;
+    }
     canvas { display: block; }
+
+    /* Efeito de clique - TE AMO flutuante (do código antigo, mas mais bonito) */
+    .floating-text {
+      position: absolute;
+      color: #ff3366;
+      font-size: 36px;
+      font-weight: bold;
+      pointer-events: none;
+      animation: floatUp 2.8s ease-out forwards;
+      text-shadow: 0 0 15px #ff6699, 0 0 30px #ff0066;
+      user-select: none;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+    @keyframes floatUp {
+      0%   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+      100% { opacity: 0; transform: translate(-50%, -180px) scale(1.8); }
+    }
   </style>
 </head>
 <body>
@@ -15,21 +39,18 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    function resize() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
 
-    const phrase = "TE AMO";
-    const fontSize = 32;
-    const columnSpacing = fontSize * 3.2;
-    const columns = Math.floor(canvas.width / columnSpacing) + 1;
-    const drops = new Array(columns).fill(-100); // começa mais alto e com variação
+    const phrase = "TE AMO ";
+    const fontSize = 18;                               // fonte original
+    const columnSpacing = fontSize * 3.8;              // bem espaçado (novo)
+    let columns = Math.floor(width / columnSpacing) + 1;
+    let drops = Array(columns).fill(-Math.random() * 100);
 
+    // Velocidade do código antigo (mas com controle suave)
     let lastTime = 0;
-    const frameDelay = 160; // velocidade gostosinha que você curtiu
+    const frameDelay = 110;  // velocidade original (rápida o suficiente, mas legível com espaçamento)
 
     function draw(timestamp) {
       if (!lastTime) lastTime = timestamp;
@@ -39,56 +60,69 @@
       }
       lastTime = timestamp;
 
-      // fundo preto com fade bem suave
-      ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Fundo com fade suave (novo - fica limpo)
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, width, height);
+
+      // Gradiente rosa lindo do código antigo
+      const gradient = ctx.createLinearGradient(0, 0, width, height);
+      gradient.addColorStop(0, "#ff4d6d");
+      gradient.addColorStop(0.5, "#ff99aa");
+      gradient.addColorStop(1, "#ff1a66");
+      ctx.fillStyle = gradient;
 
       ctx.font = `bold ${fontSize}px 'Segoe UI', Arial`;
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = "#00f0ff";
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = "#ff6699";
 
       for (let i = 0; i < drops.length; i++) {
         const x = i * columnSpacing + 20;
-        const y = drops[i] * fontSize * 1.1;
+        const y = drops[i] * fontSize * 1.6;  // espaçamento vertical generoso
 
-        // =============== CORPO AZUL (rastro) ===============
-        ctx.fillStyle = "#00aaff";
-        ctx.globalAlpha = 0.7;                 // um pouco transparente
-        for (let j = 1; j < 8; j++) {          // só 7–8 letras no rastro (não enche a tela)
-          const trailY = y - j * fontSize * 1.4; // espaçamento maior entre as letras do rastro
-          if (trailY > 0 && trailY < canvas.height + 100) {
-            ctx.globalAlpha = 0.7 - j * 0.09;   // vai sumindo suavemente
-            ctx.fillText(phrase, x, trailY);
-          }
+        // Cabeça branca brilhante
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowColor = "#ffffff";
+        ctx.shadowBlur = 20;
+        ctx.fillText(phrase, x, y);
+
+        // Corpo rosa com gradiente
+        ctx.fillStyle = gradient;
+        ctx.shadowColor = "#ff6699";
+        ctx.shadowBlur = 10;
+        if (drops[i] > 0) {
+          ctx.fillText(phrase, x, y - fontSize * 1.6);
         }
 
-        // =============== CABEÇA BRANCA (só a mais recente) ===============
-        ctx.globalAlpha = 1;
-        ctx.fillStyle = "#ffffff";
-        ctx.shadowBlur = 20;
-        ctx.shadowColor = "#ffffff";
-        ctx.fillText(phrase, x, y);            // cabeça brilhante
+        drops[i] += 0.7;
 
-        // =============== PRÓXIMA LETRA AZUL FORTE (logo abaixo da cabeça) ===============
-        ctx.fillStyle = "#00f0ff";
-        ctx.shadowColor = "#00f0ff";
-        ctx.shadowBlur = 15;
-        ctx.fillText(phrase, x, y + fontSize * 1.1);
-
-        // avanço da coluna
-        drops[i] += 0.5;
-
-        // reinicia com altura aleatória
-        if (y > canvas.height + 100) {
-          drops[i] = -Math.random() * 120 - 30;
+        if (y > height + 100) {
+          drops[i] = -Math.random() * 120;
         }
       }
 
-      ctx.globalAlpha = 1; // volta ao normal
       requestAnimationFrame(draw);
     }
 
     requestAnimationFrame(draw);
+
+    // Redimensionamento perfeito
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+      columns = Math.floor(width / columnSpacing) + 1;
+      drops = Array(columns).fill(-Math.random() * 100);
+    });
+
+    // Clique = TE AMO grande e flutuante (melhorado)
+    document.addEventListener('click', (e) => {
+      const text = document.createElement('div');
+      text.className = 'floating-text';
+      text.innerText = 'TE AMO ♡';
+      text.style.left = e.clientX + 'px';
+      text.style.top = e.clientY + 'px';
+      document.body.appendChild(text);
+      setTimeout(() => text.remove(), 3000);
+    });
   </script>
 </body>
 </html>
