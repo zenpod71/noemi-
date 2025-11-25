@@ -10,12 +10,8 @@
       background-color: black;
       font-family: 'Segoe UI', sans-serif;
     }
+    canvas { display: block; }
 
-    canvas {
-      display: block;
-    }
-
-    /* Efecto al hacer clic */
     .floating-text {
       position: absolute;
       color: #00ffff;
@@ -23,11 +19,7 @@
       font-weight: bold;
       pointer-events: none;
       animation: floatUp 3s ease-out forwards;
-      text-shadow:
-        0 0 10px #00ffff,
-        0 0 20px #00ffff,
-        0 0 40px #00ffff,
-        0 0 80px #0066ff;
+      text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 80px #0066ff;
       user-select: none;
     }
     @keyframes floatUp {
@@ -38,24 +30,33 @@
 <body>
   <canvas id="canvas"></canvas>
 
+  <!-- Música que começa automaticamente -->
+  <audio autoplay loop id="musicaFondo" preload="auto">
+    <source src="noemi.mp4" type="video/mp4">
+    Tu navegador no soporta audio.
+  </audio>
+
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
-
-    // Tamaño de pantalla
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
 
     const phrase = "TE AMO ";
     const fontSize = 20;
-    const columnSpacing = fontSize * 2.3;           // Mucho más denso
+    const columnSpacing = fontSize * 2.3;
     let columns = Math.floor(width / columnSpacing) + 10;
     let drops = [];
 
-    // Empezar con la pantalla ya llena
     for (let i = 0; i < columns; i++) {
       drops[i] = Math.random() * -300;
     }
+
+    // Forzar autoplay incluso en móviles
+    const musica = document.getElementById('musicaFondo');
+    musica.volume = 0.6;
+    document.addEventListener('touchstart', () => musica.play(), { once: true });
+    document.addEventListener('click', () => musica.play(), { once: true });
 
     function draw() {
       ctx.fillStyle = "#000";
@@ -72,13 +73,11 @@
         const x = i * columnSpacing + 15;
         const y = drops[i] * fontSize * 1.5;
 
-        // Cabeza brillante
         ctx.fillStyle = "#ffffff";
         ctx.shadowBlur = 25;
         ctx.shadowColor = "#00ffff";
         ctx.fillText(phrase, x, y);
 
-        // Rastro largo (5 niveles)
         ctx.fillStyle = gradient;
         ctx.shadowBlur = 15;
         ctx.shadowColor = "#00ffff";
@@ -91,17 +90,13 @@
         ctx.globalAlpha = 1;
 
         drops[i] += 1.05;
-
-        if (y > height + 100) {
-          drops[i] = -Math.random() * 100;
-        }
+        if (y > height + 100) drops[i] = -Math.random() * 100;
       }
       requestAnimationFrame(draw);
     }
 
     requestAnimationFrame(draw);
 
-    // Redimensionar
     window.addEventListener('resize', () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
@@ -110,7 +105,6 @@
       for (let i = 0; i < columns; i++) drops[i] = Math.random() * -300;
     });
 
-    // Clic = TE AMO gigante
     document.addEventListener('click', (e) => {
       const text = document.createElement('div');
       text.className = 'floating-text';
