@@ -17,8 +17,8 @@
 
     .floating-text {
       position: absolute;
-      /* MUDANÇA 1: Cor do texto flutuante para azul */
-      color: #3399ff; /* Azul vibrante */
+      /* Mantido Azul */
+      color: #3399ff; 
       font-size: 22px;
       font-weight: bold;
       pointer-events: none;
@@ -60,11 +60,11 @@
       ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
       ctx.fillRect(0, 0, width, height);
 
-      // MUDANÇA 2: NOVO GRADIENTE DE CORES AZUIS
+      // Gradiente de cores azuis
       const gradient = ctx.createLinearGradient(0, 0, width, height);
-      gradient.addColorStop(0, "#0077c2");   // Azul escuro
-      gradient.addColorStop(0.5, "#4db6ff");  // Azul claro
-      gradient.addColorStop(1, "#005a9c");   // Azul marinho
+      gradient.addColorStop(0, "#0077c2");   
+      gradient.addColorStop(0.5, "#4db6ff");  
+      gradient.addColorStop(1, "#005a9c");   
 
       ctx.fillStyle = gradient;
       ctx.font = fontSize + "px 'Segoe UI', Arial";
@@ -76,7 +76,9 @@
           drops[i] = 0;
         }
 
-        drops[i]++;
+        // ALTERAÇÃO PARA DEIXAR MAIS LENTO
+        drops[i] += 0.5; 
+        // Se 0.5 for muito lento, tente 0.7. Se for muito rápido, tente 0.3.
       }
 
       requestAnimationFrame(draw);
