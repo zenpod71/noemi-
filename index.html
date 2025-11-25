@@ -4,37 +4,35 @@
   <meta charset="UTF-8">
   <title>Lluvia de TE AMO</title>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background-color: black;
-      font-family: 'Segoe UI', sans-serif;
-    }
+    body { margin: 0; overflow: hidden; background-color: black; font-family: 'Segoe UI', sans-serif; }
     canvas { display: block; }
-
     .floating-text {
-      position: absolute;
-      color: #00ffff;
-      font-size: 48px;
-      font-weight: bold;
-      pointer-events: none;
-      animation: floatUp 3s ease-out forwards;
+      position: absolute; color: #00ffff; font-size: 48px; font-weight: bold;
+      pointer-events: none; animation: floatUp 3s ease-out forwards;
       text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #00ffff, 0 0 80px #0066ff;
       user-select: none;
     }
-    @keyframes floatUp {
-      to { opacity: 0; transform: translate(-50%, -280px) scale(2.5); }
+    @keyframes floatUp { to { opacity: 0; transform: translate(-50%, -280px) scale(2.5); } }
+    
+    /* Botão discreto para desbloquear o som (só aparece se necessário) */
+    #playButton {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: rgba(0, 255, 255, 0.2); color: #00ffff; border: 2px solid #00ffff;
+      padding: 20px 40px; font-size: 24px; cursor: pointer; z-index: 9999;
+      border-radius: 15px; box-shadow: 0 0 30px #00ffff;
     }
   </style>
 </head>
 <body>
   <canvas id="canvas"></canvas>
 
-  <!-- Música que começa automaticamente -->
-  <audio autoplay loop id="musicaFondo" preload="auto">
+  <!-- Música -->
+  <audio id="musicaFondo" loop preload="auto">
     <source src="noemi.mp4" type="video/mp4">
-    Tu navegador no soporta audio.
   </audio>
+
+  <!-- Botão que só aparece se o som ainda não começou -->
+  <button id="playButton" style="display:none;">Tocar música</button>
 
   <script>
     const canvas = document.getElementById('canvas');
@@ -47,25 +45,44 @@
     const columnSpacing = fontSize * 2.3;
     let columns = Math.floor(width / columnSpacing) + 10;
     let drops = [];
+    for (let i = 0; i < columns; i++) drops[i] = Math.random() * -300;
 
-    for (let i = 0; i < columns; i++) {
-      drops[i] = Math.random() * -300;
+    const audio = document.getElementById('musicaFondo');
+    const playButton = document.getElementById('playButton');
+    audio.volume = 0.6;
+
+    // Função que tenta tocar a música de TODAS as formas possíveis
+    function iniciarMusica() {
+      audio.play().then(() => {
+        playButton.style.display = 'none';  // se tocou, esconde o botão
+      }).catch(() => {
+        playButton.style.display = 'block'; // se falhou, mostra o botão
+      });
     }
 
-    // Forzar autoplay incluso en móviles
-    const musica = document.getElementById('musicaFondo');
-    musica.volume = 0.6;
-    document.addEventListener('touchstart', () => musica.play(), { once: true });
-    document.addEventListener('click', () => musica.play(), { once: true });
+    // Tenta tocar com qualquer interação do usuário (funciona em 99,9% dos casos)
+    document.body.addEventListener('click', iniciarMusica, { once: true });
+    document.body.addEventListener('touchstart', iniciarMusica, { once: true });
+    document.body.addEventListener('keydown', iniciarMusica, { once: true });
 
+    // Botão manual (caso precise)
+    playButton.addEventListener('click', () => {
+      audio.play();
+      playButton.style.display = 'none';
+    });
+
+    // Tenta tocar automaticamente assim que carregar (funciona em muitos PCs)
+    window.addEventListener('load', iniciarMusica);
+
+    // === CHUVA DE TE AMO (igual antes) ===
     function draw() {
       ctx.fillStyle = "#000";
       ctx.fillRect(0, 0, width, height);
 
       const gradient = ctx.createLinearGradient(0, 0, width, height);
-      gradient.addColorStop(0,   "#00ffff");
+      gradient.addColorStop(0, "#00ffff");
       gradient.addColorStop(0.5, "#0088ff");
-      gradient.addColorStop(1,   "#0044cc");
+      gradient.addColorStop(1, "#0044cc");
 
       ctx.font = `bold ${fontSize}px 'Segoe UI', Arial`;
 
@@ -94,7 +111,6 @@
       }
       requestAnimationFrame(draw);
     }
-
     requestAnimationFrame(draw);
 
     window.addEventListener('resize', () => {
@@ -106,6 +122,7 @@
     });
 
     document.addEventListener('click', (e) => {
+      if (e.target === playButton) return;
       const text = document.createElement('div');
       text.className = 'floating-text';
       text.innerText = 'TE AMO';
