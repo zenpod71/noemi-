@@ -15,7 +15,6 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    // Ajusta o tamanho
     function resize() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -24,14 +23,13 @@
     window.addEventListener('resize', resize);
 
     const phrase = "TE AMO";
-    const fontSize = 32;                    // tamanho bom e legível
-    const columnSpacing = fontSize * 3.2;    // espaçamento horizontal grande (era muito colado)
+    const fontSize = 32;
+    const columnSpacing = fontSize * 3.2;
     const columns = Math.floor(canvas.width / columnSpacing) + 1;
-    const drops = new Array(columns).fill(-50); // começa um pouco acima pra não aparecer tudo de uma vez
+    const drops = new Array(columns).fill(-100); // começa mais alto e com variação
 
-    // Controle de velocidade bem lenta
     let lastTime = 0;
-    const frameDelay = 280; // quase 3–4 quadros por segundo → super tranquilo de ler
+    const frameDelay = 160; // velocidade gostosinha que você curtiu
 
     function draw(timestamp) {
       if (!lastTime) lastTime = timestamp;
@@ -41,7 +39,7 @@
       }
       lastTime = timestamp;
 
-      // Fundo preto puro com fade bem suave (mantém limpo)
+      // fundo preto com fade bem suave
       ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
@@ -51,27 +49,42 @@
 
       for (let i = 0; i < drops.length; i++) {
         const x = i * columnSpacing + 20;
-        const y = drops[i] * fontSize * 1.1; // espaçamento vertical também aumentado
+        const y = drops[i] * fontSize * 1.1;
 
-        // Cabeça da coluna (branca)
-        ctx.fillStyle = "#ffffff";
-        ctx.fillText(phrase, x, y);
-
-        // Corpo da coluna (azul neon)
-        ctx.fillStyle = "#00f0ff";
-        if (drops[i] > 0) {
-          ctx.fillText(phrase, x, y - fontSize * 1.1);
+        // =============== CORPO AZUL (rastro) ===============
+        ctx.fillStyle = "#00aaff";
+        ctx.globalAlpha = 0.7;                 // um pouco transparente
+        for (let j = 1; j < 8; j++) {          // só 7–8 letras no rastro (não enche a tela)
+          const trailY = y - j * fontSize * 1.4; // espaçamento maior entre as letras do rastro
+          if (trailY > 0 && trailY < canvas.height + 100) {
+            ctx.globalAlpha = 0.7 - j * 0.09;   // vai sumindo suavemente
+            ctx.fillText(phrase, x, trailY);
+          }
         }
 
-        // Avança devagar
-        drops[i] += 0.35;
+        // =============== CABEÇA BRANCA (só a mais recente) ===============
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = "#ffffff";
+        ctx.fillText(phrase, x, y);            // cabeça brilhante
 
-        // Reinicia a coluna com espaçamento aleatório
+        // =============== PRÓXIMA LETRA AZUL FORTE (logo abaixo da cabeça) ===============
+        ctx.fillStyle = "#00f0ff";
+        ctx.shadowColor = "#00f0ff";
+        ctx.shadowBlur = 15;
+        ctx.fillText(phrase, x, y + fontSize * 1.1);
+
+        // avanço da coluna
+        drops[i] += 0.5;
+
+        // reinicia com altura aleatória
         if (y > canvas.height + 100) {
-          drops[i] = -Math.random() * 80; // começa em alturas diferentes
+          drops[i] = -Math.random() * 120 - 30;
         }
       }
 
+      ctx.globalAlpha = 1; // volta ao normal
       requestAnimationFrame(draw);
     }
 
