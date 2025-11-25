@@ -4,12 +4,7 @@
   <meta charset="UTF-8">
   <title>Chuva de TE AMO ♡</title>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: #000;
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-    }
+    body { margin: 0; overflow: hidden; background: #000; }
     canvas { display: block; }
   </style>
 </head>
@@ -20,7 +15,7 @@
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
 
-    // Ajusta o tamanho do canvas
+    // Ajusta o tamanho
     function resize() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -28,57 +23,54 @@
     resize();
     window.addEventListener('resize', resize);
 
-    const phrase = "TE AMO ";
-    const fontSize = 26;                           // maior e mais legível
-    const columns = Math.floor(canvas.width / fontSize);
-    const drops = Array(columns).fill(1);
+    const phrase = "TE AMO";
+    const fontSize = 32;                    // tamanho bom e legível
+    const columnSpacing = fontSize * 3.2;    // espaçamento horizontal grande (era muito colado)
+    const columns = Math.floor(canvas.width / columnSpacing) + 1;
+    const drops = new Array(columns).fill(-50); // começa um pouco acima pra não aparecer tudo de uma vez
 
-    // Velocidade super lenta e suave
+    // Controle de velocidade bem lenta
     let lastTime = 0;
-    const speed = 180; // milissegundos entre cada passo (quanto maior = mais lento)
+    const frameDelay = 280; // quase 3–4 quadros por segundo → super tranquilo de ler
 
     function draw(timestamp) {
       if (!lastTime) lastTime = timestamp;
-      if (timestamp - lastTime < speed) {
+      if (timestamp - lastTime < frameDelay) {
         requestAnimationFrame(draw);
         return;
       }
       lastTime = timestamp;
 
-      // Fundo com rastro bem suave (fica clean)
-      ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
+      // Fundo preto puro com fade bem suave (mantém limpo)
+      ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Cor azul neon linda
-      ctx.fillStyle = "#00ddff";
       ctx.font = `bold ${fontSize}px 'Segoe UI', Arial`;
-      ctx.shadowBlur = 12;
-      ctx.shadowColor = "#00ddff";
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = "#00f0ff";
 
       for (let i = 0; i < drops.length; i++) {
-        const x = i * fontSize;
-        const y = drops[i] * fontSize;
+        const x = i * columnSpacing + 20;
+        const y = drops[i] * fontSize * 1.1; // espaçamento vertical também aumentado
 
-        // Texto principal
+        // Cabeça da coluna (branca)
+        ctx.fillStyle = "#ffffff";
         ctx.fillText(phrase, x, y);
 
-        // Brilho branco na "cabeça" da coluna (efeito Matrix bonito)
-        if (drops[i] > 1) {
-          ctx.fillStyle = "#ffffff";
-          ctx.fillText(phrase, x, y - fontSize);
+        // Corpo da coluna (azul neon)
+        ctx.fillStyle = "#00f0ff";
+        if (drops[i] > 0) {
+          ctx.fillText(phrase, x, y - fontSize * 1.1);
         }
 
-        // Reseta a coluna quando sai da tela
-        if (y > canvas.height && Math.random() > 0.98) {
-          drops[i] = 0;
-        }
+        // Avança devagar
+        drops[i] += 0.35;
 
-        drops[i] += 0.6; // velocidade da queda (fracionário = mais suave)
+        // Reinicia a coluna com espaçamento aleatório
+        if (y > canvas.height + 100) {
+          drops[i] = -Math.random() * 80; // começa em alturas diferentes
+        }
       }
-
-      // Cor volta pro azul padrão pro próximo frame
-      ctx.fillStyle = "#00ddff";
-      ctx.shadowColor = "#00ddff";
 
       requestAnimationFrame(draw);
     }
