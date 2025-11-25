@@ -11,11 +11,10 @@
       font-family: 'Segoe UI', sans-serif;
     }
     canvas { display: block; }
-
     .floating-text {
       position: absolute;
       color: #00ffff;
-      font-size: 48px;
+      font-size: 44px;
       font-weight: bold;
       pointer-events: none;
       animation: floatUp 3s ease-out forwards;
@@ -28,67 +27,62 @@
     }
     @keyframes floatUp {
       0%   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-      100% { opacity: 0; transform: translate(-50%, -250px) scale(2.4); }
+      100% { opacity: 0; transform: translate(-50%, -220px) scale(2.2); }
     }
   </style>
 </head>
 <body>
   <canvas id="canvas"></canvas>
-
   <script>
     const canvas = document.getElementById('canvas');
     const ctx = canvas.getContext('2d');
     let width = canvas.width = window.innerWidth;
     let height = canvas.height = window.innerHeight;
-
-    const phrase = "TE AMO ";
-    const fontSize = 20;
-    const columnSpacing = fontSize * 2.1;   // bem denso
-    let columns = Math.floor(width / columnSpacing) + 5;
-    let drops = Array(columns).fill(0);
-
-    // começa já cheio de TE AMO na tela
-    for (let i = 0; i < drops.length; i++) {
-      drops[i] = Math.random() * -200;
-    }
+    const phrase = "TE AMO ";           // texto correto
+    const fontSize = 18;
+    const columnSpacing = fontSize * 3.8;
+    let columns = Math.floor(width / columnSpacing) + 1;
+    let drops = Array(columns).fill(-Math.random() * 100);
 
     function draw() {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.04)";
+      // Fundo 100% preto a cada frame
+      ctx.fillStyle = "#000000";
       ctx.fillRect(0, 0, width, height);
 
+      // Gradiente azul neon
       const gradient = ctx.createLinearGradient(0, 0, width, height);
       gradient.addColorStop(0,   "#00f0ff");
       gradient.addColorStop(0.5, "#0088ff");
-      gradient.addColorStop(1,   "#0044cc");
+      gradient.addColorStop(1,   "#0066cc");
 
       ctx.font = `bold ${fontSize}px 'Segoe UI', Arial`;
 
       for (let i = 0; i < drops.length; i++) {
-        const x = i * columnSpacing + 15;
-        const y = drops[i] * fontSize * 1.5;
+        const x = i * columnSpacing + 20;
+        const y = drops[i] * fontSize * 1.6;
 
-        // cabeça brilhante
+        // Cabeça brilhante branca
         ctx.fillStyle = "#ffffff";
-        ctx.shadowBlur = 25;
+        ctx.shadowBlur = 22;
         ctx.shadowColor = "#00ffff";
         ctx.fillText(phrase, x, y);
 
-        // rastro de 3 linhas (muito cheio)
+        // Rastro de 4 “TE AMO” atrás (muito mais cheio)
         ctx.fillStyle = gradient;
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 14;
         ctx.shadowColor = "#00ffff";
-        for (let trail = 1; trail <= 3; trail++) {
-          if (drops[i] > trail) {
-            ctx.globalAlpha = 1 - trail * 0.25;
-            ctx.fillText(phrase, x, y - trail * fontSize * 1.5);
+        for (let t = 1; t <= 4; t++) {
+          if (drops[i] >= t) {
+            ctx.globalAlpha = 1 - t * 0.18;
+            ctx.fillText(phrase, x, y - t * fontSize * 1.6);
           }
         }
         ctx.globalAlpha = 1;
 
-        drops[i] += 1.1;  // velocidade alta
+        drops[i] += 0.96;   // velocidade perfeita (rápida e legível)
 
-        if (y > height + 100) {
-          drops[i] = -Math.random() * 80;
+        if (y > height + 80) {
+          drops[i] = -Math.random() * 140;
         }
       }
       requestAnimationFrame(draw);
@@ -96,17 +90,15 @@
 
     requestAnimationFrame(draw);
 
+    // Redimensionamento
     window.addEventListener('resize', () => {
       width = canvas.width = window.innerWidth;
       height = canvas.height = window.innerHeight;
-      columns = Math.floor(width / columnSpacing) + 5;
-      drops = Array(columns).fill(0);
-      for (let i = 0; i < drops.length; i++) {
-        drops[i] = Math.random() * -200;
-      }
+      columns = Math.floor(width / columnSpacing) + 1;
+      drops = Array(columns).fill(-Math.random() * 100);
     });
 
-    // clique = TE AMO grande subindo (sem coração)
+    // Clique cria TE AMO grande subindo
     document.addEventListener('click', (e) => {
       const text = document.createElement('div');
       text.className = 'floating-text';
